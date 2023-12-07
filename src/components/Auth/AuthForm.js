@@ -41,8 +41,9 @@ const AuthForm = () => {
       userDetails);
       console.log(response);
       setErrorMessage('Login successful');
-      loginCtx.setLogin();
-      localStorage.setItem('token' , response.data.idToken);
+      const token = response.data.idToken
+      localStorage.setItem('token' , token);
+      loginCtx.login(token);
       history.push('/profile');
       
      } catch (error) {

@@ -9,7 +9,7 @@ const MainNavigation = () => {
   const history = useHistory();
   const logoutHandler = () =>{
     localStorage.removeItem('token');
-    loginCtx.setLogin();
+    loginCtx.logout();
     history.push('/auth');
   }
   return (
@@ -20,13 +20,13 @@ const MainNavigation = () => {
       <nav>
         <ul>
           <li>
-            {!loginCtx.loggedIn && <Link to='/auth'>Login</Link>}
+            {!loginCtx.isLoggedin && <Link to='/auth'>Login</Link>}
           </li>
           <li>
-           {loginCtx.loggedIn &&  <Link to='/profile'>Profile</Link>}
+           {loginCtx.isLoggedin &&  <Link to='/profile'>Profile</Link>}
           </li>
           <li>
-          {loginCtx.loggedIn &&  <button onClick={logoutHandler}>Logout</button>}
+          {loginCtx.isLoggedin &&  <button onClick={logoutHandler}>Logout</button>}
             
           </li>
         </ul>
