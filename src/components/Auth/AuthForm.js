@@ -1,4 +1,5 @@
 import { useState, useRef , useContext} from 'react';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import axios from 'axios';
 import classes from './AuthForm.module.css';
 import LoginContext from '../Store/loginContext';
@@ -9,7 +10,7 @@ const AuthForm = () => {
   const [errorMessage , setErrorMessage] = useState('');
   const [isLoading , setIsLoading] = useState(false);
   const [isLogin ,setIsLogin] = useState(false);
-
+  const history = useHistory();
   const formSubmitHandler = async (e) =>{
     e.preventDefault();
     const userDetails= {
@@ -42,6 +43,8 @@ const AuthForm = () => {
       setErrorMessage('Login successful');
       loginCtx.setLogin();
       localStorage.setItem('token' , response.data.idToken);
+      history.push('/profile');
+      
      } catch (error) {
       setErrorMessage(error.response.data.error.message);
       console.log(error)
