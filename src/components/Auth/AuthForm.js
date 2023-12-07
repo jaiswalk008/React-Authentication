@@ -1,14 +1,15 @@
-import { useState, useRef } from 'react';
+import { useState, useRef , useContext} from 'react';
 import axios from 'axios';
 import classes from './AuthForm.module.css';
-
+import LoginContext from '../Store/loginContext';
 const AuthForm = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const loginCtx = useContext(LoginContext);
   const email = useRef('');
   const password = useRef('');
   const [errorMessage , setErrorMessage] = useState('');
   const [isLoading , setIsLoading] = useState(false);
-  
+  const [isLogin ,setIsLogin] = useState(false);
+
   const formSubmitHandler = async (e) =>{
     e.preventDefault();
     const userDetails= {
@@ -16,25 +17,22 @@ const AuthForm = () => {
       password:password.current.value,
       returnSecureToken:true
     }
-    if(isLogin){
+    // console.log(loginCtx.loggedIn)
+    setIsLoading(prevState => !prevState);
+    if(!isLogin){
       
-        setIsLoading(prevState => !prevState);
-        
-        
-        console.log(process.env.REACT_APP_API_KEY)
+                
         try{
           const response= await axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+process.env.REACT_APP_API_KEY,
         userDetails);
           console.log(response);
-          
-          setIsLogin((prevState) => !prevState);
           setErrorMessage('');
         }
         catch(err){
           setErrorMessage(err.response.data.error.message);
         }
-        setIsLoading(prevState => !prevState);
-
+        
+        setIsLogin(!isLogin)
     }
     else{
      try {
@@ -42,16 +40,19 @@ const AuthForm = () => {
       userDetails);
       console.log(response);
       setErrorMessage('Login successful');
+      loginCtx.setLogin();
       localStorage.setItem('token' , response.data.idToken);
      } catch (error) {
       setErrorMessage(error.response.data.error.message);
+      console.log(error)
      }
     }
+    setIsLoading(prevState => !prevState);
   }
 
   return (
     <section className={classes.auth}>
-      <h1>{!isLogin ? 'Login' : 'Sign Up'}</h1>
+      <h1>{isLogin ? 'Login' : 'Sign Up'}</h1>
       <form onSubmit={formSubmitHandler}>
         <div className={classes.control}>
           <label htmlFor='email'>Your Email</label>
@@ -71,16 +72,15 @@ const AuthForm = () => {
           <button
             type='submit'
             className={classes.toggle}
-
           >
-            {isLogin ? 'Create new account' : 'Login with existing account'}
+            {!isLogin ? 'Create new account' : 'Login with existing account'}
           </button>
           <button
             type='button'
             className={classes.toggle}
-            onClick={() => setIsLogin(false)}
+            onClick={() => setIsLogin(!isLogin)}
           >
-             {!isLogin ? 'Create new account' : 'Login with existing account'}
+             {isLogin ? 'Create new account' : 'Login with existing account'}
           </button>
         </div>
         <p style={{color:"red"}}>{errorMessage}</p>
