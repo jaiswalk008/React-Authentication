@@ -11,30 +11,41 @@ const AuthForm = () => {
   
   const formSubmitHandler = async (e) =>{
     e.preventDefault();
+    const userDetails= {
+      email:email.current.value,
+      password:password.current.value,
+      returnSecureToken:true
+    }
     if(isLogin){
       
         setIsLoading(prevState => !prevState);
-        const userDetails= {
-          email:email.current.value,
-          password:password.current.value,
-          returnSecureToken:true
-        }
         
-        console.log(userDetails)
+        
+        console.log(process.env.REACT_APP_API_KEY)
         try{
-          const response= await axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCt2ecAeK0i9mf459d0hG17C6BkFx7Gngk',
+          const response= await axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+process.env.REACT_APP_API_KEY,
         userDetails);
           console.log(response);
           
           setIsLogin((prevState) => !prevState);
+          setErrorMessage('');
         }
         catch(err){
-          setErrorMessage(err.response.data.error.message)
+          setErrorMessage(err.response.data.error.message);
         }
         setIsLoading(prevState => !prevState);
-      
-      
-    
+
+    }
+    else{
+     try {
+      const response = await axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+process.env.REACT_APP_API_KEY,
+      userDetails);
+      console.log(response);
+      setErrorMessage('Login successful');
+      localStorage.setItem('token' , response.data.idToken);
+     } catch (error) {
+      setErrorMessage(error.response.data.error.message);
+     }
     }
   }
 
@@ -63,6 +74,13 @@ const AuthForm = () => {
 
           >
             {isLogin ? 'Create new account' : 'Login with existing account'}
+          </button>
+          <button
+            type='button'
+            className={classes.toggle}
+            onClick={() => setIsLogin(false)}
+          >
+             {!isLogin ? 'Create new account' : 'Login with existing account'}
           </button>
         </div>
         <p style={{color:"red"}}>{errorMessage}</p>
